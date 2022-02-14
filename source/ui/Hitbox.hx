@@ -36,9 +36,9 @@ class Hitbox extends FlxSpriteGroup
 		hitbox = new FlxSpriteGroup();
 		hitbox.scrollFactor.set();
 
-		var hitbox_hint:FlxSprite = new FlxSprite(0, 0).loadGraphic(Paths.image('AndroidControls/hitbox_hint'));
+		var hitbox_hint:FlxSprite = new FlxSprite(0, 0).loadGraphic('assets/shared/images/hitbox/hitbox_hint.png');
 
-		hitbox_hint.alpha = 0.35;
+		hitbox_hint.alpha = 0.2;
 
 		if (sizex != 320)
 		{
@@ -60,27 +60,40 @@ class Hitbox extends FlxSpriteGroup
 
 	public function createhitbox(X:Float, framestring:String) {
 		var button = new FlxButton(X, 0);
-		var frames = Paths.getSparrowAtlas('AndroidControls/hitbox');
+		var frames = FlxAtlasFrames.fromSparrow('assets/shared/images/hitbox/hitbox.png', 'assets/shared/images/hitbox/hitbox.xml');
 		
-        var graphic:FlxGraphic = FlxGraphic.fromFrame(frames.getByName(framestring));
+		var graphic:FlxGraphic = FlxGraphic.fromFrame(frames.getByName(framestring));
 
-        button.loadGraphic(graphic);
+		button.loadGraphic(graphic);
 
-        button.alpha = 0;
-    
-        button.onDown.callback = function (){
-            FlxTween.num(0, 0.75, .075, {ease: FlxEase.circInOut}, function (a:Float) { button.alpha = a; });
-        };
+		/*button.width = sizex;
+		button.height = FlxG.height;*/
+		button.setGraphicSize(Std.int(sizex), FlxG.height);
+		button.updateHitbox();
 
-        button.onUp.callback = function (){
-            FlxTween.num(0.75, 0, .1, {ease: FlxEase.circInOut}, function (a:Float) { button.alpha = a; });
-        }
-        
-        button.onOut.callback = function (){
-            FlxTween.num(button.alpha, 0, .2, {ease: FlxEase.circInOut}, function (a:Float) { button.alpha = a; });
-        }
+		button.alpha = 0;
 
-        return button;
+		var tween:FlxTween = null;
+
+		button.onDown.callback = function (){
+			if (tween != null)
+				tween.cancel();
+			tween = FlxTween.num(button.alpha, 0.75, .075, {ease: FlxEase.circInOut}, function (a:Float) { button.alpha = a; });
+		};
+
+		button.onUp.callback = function (){
+			if (tween != null)
+				tween.cancel();
+			tween = FlxTween.num(button.alpha, 0, .15, {ease: FlxEase.circInOut}, function (a:Float) { button.alpha = a; });
+		}
+		
+		button.onOut.callback = function (){
+			if (tween != null)
+				tween.cancel();
+			tween = FlxTween.num(button.alpha, 0, .15, {ease: FlxEase.circInOut}, function (a:Float) { button.alpha = a; });
+		}
+
+		return button;
 	}
 
 	override public function destroy():Void
